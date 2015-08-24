@@ -184,6 +184,10 @@
     // width of the gauge element
     gaugeWidthScale : kvLookup('gaugeWidthScale', config, dataset, 1.0),
 
+    // backgroundWidthScale : float
+    // width of the gauge background
+    backgroundWidthScale : kvLookup('backgroundWidthScale', config, dataset, kvLookup('gaugeWidthScale', config, dataset, 1.0)),
+
     // gaugeColor : string
     // background color of gauge element
     gaugeColor : kvLookup('gaugeColor', config, dataset, "#edebeb"),
@@ -571,7 +575,7 @@
         obj.params.widgetH,
         obj.params.dx,
         obj.params.dy,
-        obj.config.gaugeWidthScale,
+        obj.config.backgroundWidthScale,
         obj.config.donut
       ]
   });
