@@ -188,6 +188,14 @@
     // width of the gauge background
     backgroundWidthScale : kvLookup('backgroundWidthScale', config, dataset, kvLookup('gaugeWidthScale', config, dataset, 1.0)),
 
+    // backgroundBands: array
+    // makes the gauge with sectors of different color
+    backgroundBands: kvLookup('backgroundBands', config, dataset, [], 'array', ','),
+
+    // backgroundBandsGradient: array
+    // makes the gauge with sectors of different color
+    backgroundBandsGradient: kvLookup('backgroundBandsGradient', config, dataset, ['#edebeb', '#3a87ad'], 'array', ','),
+
     // gaugeColor : string
     // background color of gauge element
     gaugeColor : kvLookup('gaugeColor', config, dataset, "#edebeb"),
@@ -580,6 +588,31 @@
       ]
   });
 
+  if(obj.config.backgroundBands.length) {
+    var colorStep = Math.floor(100 / obj.config.backgroundBands.length - 1);
+    obj.gauges = [];
+
+    obj.config.backgroundBands.sort().reverse()
+
+    for(var i = 0; i < obj.config.backgroundBands.length; i++) {
+      obj.gauges.push(obj.canvas.path().attr({
+          "stroke": "none",
+          "fill": obj.gradient(obj.config.backgroundBandsGradient[0], obj.config.backgroundBandsGradient[1], 100 - (colorStep * (i + 1))),
+          pki: [
+            obj.config.backgroundBands[i],
+            obj.config.min,
+            obj.config.max,
+            obj.params.widgetW,
+            obj.params.widgetH,
+            obj.params.dx,
+            obj.params.dy,
+            obj.config.backgroundWidthScale,
+            obj.config.donut
+          ]
+      }));
+    }
+  }
+
   // level
   obj.level = obj.canvas.path().attr({
     "stroke": "none",
@@ -868,6 +901,46 @@ JustGage.prototype.generateShadow = function(svg, defs) {
   // var clear
   gaussFilter, feOffset, feGaussianBlur, feComposite1, feFlood, feComposite2, feComposite3 = null;
 };
+
+/** Get color gradient helper */
+JustGage.prototype.gradient = function(start_color, end_color, percent) {
+    var newColor = {};
+
+    function colorPercent(a, b) {
+        return(a + Math.round((b-a)*(percent/100)));
+    }
+
+    function colorHex(num) {
+        num = Math.max(Math.min(num, 255), 0);   // not more than 255,not less than 0
+        var str = num.toString(16);
+
+        if (str.length < 2)
+            str = "0" + str;
+
+        return(str);
+    }
+
+    start_color = {
+      r: parseInt(start_color.substring(1, 3), 16),
+      g: parseInt(start_color.substring(3, 5), 16),
+      b: parseInt(start_color.substring(5, 7), 16)
+    }
+
+    end_color = {
+      r: parseInt(end_color.substring(1, 3), 16),
+      g: parseInt(end_color.substring(3, 5), 16),
+      b: parseInt(end_color.substring(5, 7), 16)
+    }
+
+    newColor.r = colorPercent(start_color.r, end_color.r);
+    newColor.g = colorPercent(start_color.g, end_color.g);
+    newColor.b = colorPercent(start_color.b, end_color.b);
+    newColor.cssColor = "#" +
+                        colorHex(newColor.r) +
+                        colorHex(newColor.g) +
+                        colorHex(newColor.b);
+    return(newColor.cssColor);
+}
 
 //
 // tiny helper function to lookup value of a key from two hash tables
