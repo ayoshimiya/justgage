@@ -592,7 +592,7 @@
     var colorStep = Math.floor(100 / obj.config.backgroundBands.length - 1);
     obj.gauges = [];
 
-    obj.config.backgroundBands.sort().reverse()
+    obj.config.backgroundBands.sort(function(a,b){ return b-a;})
 
     for(var i = 0; i < obj.config.backgroundBands.length; i++) {
       obj.gauges.push(obj.canvas.path().attr({
